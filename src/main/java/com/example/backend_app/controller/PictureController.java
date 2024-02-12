@@ -16,7 +16,6 @@ public class PictureController {
     @Autowired
     private PictureRepository pictureRepository;
 
-    // Create
     @PostMapping
      ResponseEntity<Picture> createPicture(@RequestBody Picture picture) {
         @SuppressWarnings("null")
@@ -24,14 +23,12 @@ public class PictureController {
         return ResponseEntity.ok(savedPicture);
     }
 
-    // Read All
     @GetMapping
      ResponseEntity<List<Picture>> getAllPicture() {
         List<Picture> picture = pictureRepository.findAll();
         return ResponseEntity.ok(picture);
     }
 
-    // Read One
     @GetMapping("/{id}")
      ResponseEntity<Picture> getPictureById(@PathVariable Long id) {
         @SuppressWarnings("null")
@@ -39,7 +36,6 @@ public class PictureController {
         return pictureOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Update
     @SuppressWarnings("null")
     @PutMapping("/{id}")
      ResponseEntity<Picture> updatePicture(@PathVariable Long id, @RequestBody Picture updatedPicture) {
@@ -52,7 +48,6 @@ public class PictureController {
         return ResponseEntity.ok(savedPicture);
     }
 
-    // Delete
     @SuppressWarnings("null")
     @DeleteMapping("/{id}")
      ResponseEntity<Void> deletePicture(@PathVariable Long id) {

@@ -81,13 +81,6 @@ public class ProductService {
         transaction.setAmount(product.getAmount());
         transactionRepository.save(transaction);
     }
-    // public List<Product> getAllProducts() {
-    //     return productRepository.findAllWithProductAccountAndTransactions();
-    // }
-    
-    // public Optional<Product> getProductById(Long id) {
-    //     return Optional.ofNullable(productRepository.findByIdWithProductAccountAndTransactions(id));
-    // }
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
