@@ -28,7 +28,6 @@ public class ProductService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @SuppressWarnings("unused")
     @Transactional
     public void addProduct(Product product) {
 
@@ -37,50 +36,31 @@ public class ProductService {
         throw new RuntimeException("Product with the same name and unit already exists");
     }
 
-        boolean isAddingProduct = true; 
-
-        if (product.getAmount() < 0) {
-            isAddingProduct = false; 
-        }
-
         Product savedProduct = productRepository.save(product);
 
         ProductAccount productAccount = new ProductAccount();
         productAccount.setProduct(savedProduct);
         productAccount.setUnit(product.getUnit());
 
-        if (productAccount.getTotal() > 0){
-            productAccount.setProfit(true);
-        } else{
-            productAccount.setProfit(false);
-        }
-    
-        if (isAddingProduct = true) {
-            productAccount.setRemainQuantity(productAccount.getRemainQuantity() + product.getAmount());
-            productAccount.setTotal(product.getAmount() * product.getBuying_price());
-        } else {
-            productAccount.setRemainQuantity(productAccount.getRemainQuantity() - product.getAmount());
-            productAccount.setTotal(product.getAmount() * product.getSelling_price());
-        }
-
+        productAccount.setProfit(false);
+        
+        productAccount.setRemainQuantity(productAccount.getRemainQuantity() + product.getAmount());
+        productAccount.setTotal(product.getAmount() * -product.getBuying_price());
 
         ProductAccount savedProductAccount = productAccountRepository.save(productAccount);
 
         Transaction transaction = new Transaction();
         
         transaction.setProductAccount(savedProductAccount);
-        if (isAddingProduct = true) {
-            transaction.setPrice(product.getBuying_price());
-            transaction.setStatus("buying");
-        } else{
-            transaction.setPrice(product.getSelling_price());
-            transaction.setStatus("selling");
+        
+        transaction.setPrice(product.getBuying_price());
+        transaction.setStatus("buying");
 
-        }
         transaction.setTime(Instant.now());
         transaction.setAmount(product.getAmount());
         transactionRepository.save(transaction);
     }
+    
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
@@ -90,7 +70,6 @@ public class ProductService {
         return productRepository.findById(id);
     }
     
-
     @Transactional
     public void updateProduct(Long id, Product updatedProduct) {
         @SuppressWarnings("null")
@@ -104,19 +83,25 @@ public class ProductService {
             existingProduct.setDescription(updatedProduct.getDescription());
             existingProduct.setBuying_price(updatedProduct.getBuying_price());
             existingProduct.setSelling_price(updatedProduct.getSelling_price());
-            existingProduct.setAmount(updatedProduct.getAmount());
 
+            int amountDifference = updatedProduct.getAmount() - existingProduct.getAmount();
+
+            existingProduct.setAmount(updatedProduct.getAmount());
+            
             productRepository.save(existingProduct);
             
             ProductAccount productAccount = productAccountRepository.findByProduct(existingProduct);
             if (productAccount != null) {
-
-                productAccount.getProduct().setUnit(updatedProduct.getUnit());
-
-                int amountDifference = updatedProduct.getAmount() - existingProduct.getAmount();
                 
+                productAccount.getProduct().setUnit(updatedProduct.getUnit());
                 productAccount.setRemainQuantity(productAccount.getRemainQuantity() + amountDifference);
-                productAccount.setTotal(productAccount.getTotal() + (amountDifference * getTransactionPrice(existingProduct, amountDifference))); 
+                productAccount.setTotal(productAccount.getTotal() - (amountDifference * getTransactionPrice(existingProduct, amountDifference)));
+
+                if (productAccount.getTotal() > 0){
+                    productAccount.setProfit(true);
+                } else{
+                    productAccount.setProfit(false);
+                }
                 productAccountRepository.save(productAccount);
     
                 Transaction transaction = new Transaction();

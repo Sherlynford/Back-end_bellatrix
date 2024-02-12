@@ -22,7 +22,7 @@ public class Product {
     private Double buying_price;
     private Double selling_price;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<ProductAccount> productAccounts;
     

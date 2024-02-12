@@ -15,7 +15,7 @@ public class ProductAccount {
     @GeneratedValue
     private Long accountId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     @JsonBackReference
     private Product product;
