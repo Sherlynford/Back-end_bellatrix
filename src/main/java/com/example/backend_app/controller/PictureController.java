@@ -18,28 +18,31 @@ public class PictureController {
 
     // Create
     @PostMapping
-    public ResponseEntity<Picture> createPicture(@RequestBody Picture picture) {
-        Picture savedpicture = pictureRepository.save(picture);
-        return ResponseEntity.ok(savedpicture);
+     ResponseEntity<Picture> createPicture(@RequestBody Picture picture) {
+        @SuppressWarnings("null")
+        Picture savedPicture = pictureRepository.save(picture);
+        return ResponseEntity.ok(savedPicture);
     }
 
     // Read All
     @GetMapping
-    public ResponseEntity<List<Picture>> getAllPicture() {
+     ResponseEntity<List<Picture>> getAllPicture() {
         List<Picture> picture = pictureRepository.findAll();
         return ResponseEntity.ok(picture);
     }
 
     // Read One
     @GetMapping("/{id}")
-    public ResponseEntity<Picture> getPictureById(@PathVariable Long id) {
+     ResponseEntity<Picture> getPictureById(@PathVariable Long id) {
+        @SuppressWarnings("null")
         Optional<Picture> pictureOptional = pictureRepository.findById(id);
         return pictureOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Update
+    @SuppressWarnings("null")
     @PutMapping("/{id}")
-    public ResponseEntity<Picture> updatePicture(@PathVariable Long id, @RequestBody Picture updatedPicture) {
+     ResponseEntity<Picture> updatePicture(@PathVariable Long id, @RequestBody Picture updatedPicture) {
         if (!pictureRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -50,8 +53,9 @@ public class PictureController {
     }
 
     // Delete
+    @SuppressWarnings("null")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePicture(@PathVariable Long id) {
+     ResponseEntity<Void> deletePicture(@PathVariable Long id) {
         if (!pictureRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

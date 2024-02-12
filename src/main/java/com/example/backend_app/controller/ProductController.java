@@ -1,56 +1,66 @@
 package com.example.backend_app.controller;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-import com.example.backend_app.exception.ProductNotFoundException;
 import com.example.backend_app.model.Product;
-import com.example.backend_app.repository.ProductRepository;
+import com.example.backend_app.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin("http://localhost:5173")
 public class ProductController {
-    
-    @Autowired
-    private ProductRepository productRepository;
+
+    private final ProductService productService;
+
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @PostMapping("/product")
-    
-    Product newProduct(@RequestBody Product newProduct){
-        return this.productRepository.save(newProduct);
+    public ResponseEntity<String> addProduct(@RequestBody Product product) {
+        try {
+            productService.addProduct(product);
+            return ResponseEntity.ok("Product added successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add product: " + e.getMessage());
+        }
     }
-    @GetMapping("/products")
-    List<Product> getAllProducts(){
-        return productRepository.findAll();
-    }
-    @GetMapping("/product/{id}")
-    Product getProductById(@PathVariable Long id){
-        return productRepository.findById(id)
-        .orElseThrow(() -> new ProductNotFoundException(id));
-    }
-    @PutMapping("/product/{id}")
-    Product updateProduct(@RequestBody Product newProduct,@PathVariable Long id){
-        return productRepository.findById(id)
-        .map(product -> {
-            product.setName(newProduct.getName());
-            product.setType(newProduct.getType());
-            product.setPicture(newProduct.getPicture());
-            product.setUnit(newProduct.getUnit());
-            product.setDescription(newProduct.getDescription());
-            product.setAmount(newProduct.getAmount());
-            product.setBuying_price(newProduct.getBuying_price());
-            product.setSelling_price(newProduct.getSelling_price());
 
-            return productRepository.save(product);
-        }).orElseThrow(()-> new ProductNotFoundException(id));
+    @GetMapping("/products")
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
     }
+
+    @GetMapping("/product/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        Optional<Product> productOptional = productService.getProductById(id);
+        return productOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/product/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
+        try {
+            productService.updateProduct(id, updatedProduct);
+            return ResponseEntity.ok("Product updated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update product: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/product/{id}")
-    String deleteProduct(@PathVariable Long id){
-        if(!productRepository.existsById(id)){
-            throw new ProductNotFoundException(id);
-        }else{
-            productRepository.deleteById(id);
-            return "Product with id"+id +"has been deleted";
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok("Product deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete product: " + e.getMessage());
         }
     }
 }

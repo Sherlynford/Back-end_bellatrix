@@ -2,6 +2,7 @@ package com.example.backend_app.model;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,28 +12,18 @@ public class Transaction {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private Long transactionId;
 
-    @ManyToOne
-    @JoinColumn(name = "product_account_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_account_id", referencedColumnName = "accountId")
+    @JsonBackReference
     private ProductAccount productAccount;
 
-    private String status;
-
-    @Transient
-    private Integer amount;
-
-    @Transient
     private Double price;
 
     private Instant time;
 
-    @PostLoad
-    public void calculateDerivedValues() {
-        if (productAccount != null && productAccount.getProduct() != null) {
-            this.amount = productAccount.getProduct().getAmount();
-            this.price = productAccount.getProduct().getSelling_price();
-        }
-    }
-
+    private String status;
+    
+    private Integer amount;
 }
