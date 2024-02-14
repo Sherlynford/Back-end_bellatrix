@@ -10,26 +10,26 @@ import java.util.List;
 import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api/pictures")
+
 public class PictureController {
 
     @Autowired
     private PictureRepository pictureRepository;
 
-    @PostMapping
+    @PostMapping("/picture")
      ResponseEntity<Picture> createPicture(@RequestBody Picture picture) {
         @SuppressWarnings("null")
         Picture savedPicture = pictureRepository.save(picture);
         return ResponseEntity.ok(savedPicture);
     }
 
-    @GetMapping
+    @GetMapping("/pictures")
      ResponseEntity<List<Picture>> getAllPicture() {
         List<Picture> picture = pictureRepository.findAll();
         return ResponseEntity.ok(picture);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/picture/{id}")
      ResponseEntity<Picture> getPictureById(@PathVariable Long id) {
         @SuppressWarnings("null")
         Optional<Picture> pictureOptional = pictureRepository.findById(id);
@@ -37,7 +37,7 @@ public class PictureController {
     }
 
     @SuppressWarnings("null")
-    @PutMapping("/{id}")
+    @PutMapping("/picture/{id}")
      ResponseEntity<Picture> updatePicture(@PathVariable Long id, @RequestBody Picture updatedPicture) {
         if (!pictureRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -49,7 +49,7 @@ public class PictureController {
     }
 
     @SuppressWarnings("null")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/picture/{id}")
      ResponseEntity<Void> deletePicture(@PathVariable Long id) {
         if (!pictureRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
