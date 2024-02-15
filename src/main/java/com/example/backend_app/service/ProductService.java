@@ -103,7 +103,9 @@ public class ProductService {
                     productAccount.setProfit(false);
                 }
                 productAccountRepository.save(productAccount);
-    
+                if (amountDifference == 0){
+                    return ;
+                }else{
                 Transaction transaction = new Transaction();
                 transaction.setProductAccount(productAccount);
                 transaction.setPrice(getTransactionPrice(existingProduct, amountDifference));
@@ -111,6 +113,7 @@ public class ProductService {
                 transaction.setTime(Instant.now());
                 transaction.setAmount(Math.abs(amountDifference));
                 transactionRepository.save(transaction);
+            }
             } else {
                 throw new RuntimeException("Product Account not found for product with id: " + existingProduct.getId());
             }
