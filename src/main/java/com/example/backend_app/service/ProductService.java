@@ -95,7 +95,10 @@ public class ProductService {
                 
                 productAccount.getProduct().setUnit(updatedProduct.getUnit());
                 productAccount.setRemainQuantity(productAccount.getRemainQuantity() + amountDifference);
-                productAccount.setTotal(productAccount.getTotal() - (amountDifference * getTransactionPrice(existingProduct, amountDifference)));
+                if(amountDifference != -1 && amountDifference != 10){
+                    productAccount.setTotal(productAccount.getTotal() - (amountDifference * getTransactionPrice(existingProduct, amountDifference)));
+                }
+                
 
                 if (productAccount.getTotal() > 0){
                     productAccount.setProfit(true);
@@ -103,17 +106,31 @@ public class ProductService {
                     productAccount.setProfit(false);
                 }
                 productAccountRepository.save(productAccount);
-                if (amountDifference == 0){
-                    return ;
-                }else{
-                Transaction transaction = new Transaction();
-                transaction.setProductAccount(productAccount);
-                transaction.setPrice(getTransactionPrice(existingProduct, amountDifference));
-                transaction.setStatus(amountDifference > 0 ? "buying" : "selling");
-                transaction.setTime(Instant.now());
-                transaction.setAmount(Math.abs(amountDifference));
-                transactionRepository.save(transaction);
-            }
+                if (amountDifference != 0 && amountDifference != -1 && amountDifference != 10){
+                    Transaction transaction = new Transaction();
+                    transaction.setProductAccount(productAccount);
+                    transaction.setPrice(getTransactionPrice(existingProduct, amountDifference));
+                    transaction.setStatus(amountDifference > 0 ? "buying" : "selling");
+                    transaction.setTime(Instant.now());
+                    transaction.setAmount(Math.abs(amountDifference));
+                    transactionRepository.save(transaction);
+                }else if (amountDifference == -1 ){
+                    Transaction transaction = new Transaction();
+                    transaction.setProductAccount(productAccount);
+                    transaction.setPrice(0.0);
+                    transaction.setStatus("transfer");
+                    transaction.setTime(Instant.now());
+                    transaction.setAmount(Math.abs(amountDifference));
+                    transactionRepository.save(transaction);
+                }else if (amountDifference == 10){
+                    Transaction transaction = new Transaction();
+                    transaction.setProductAccount(productAccount);
+                    transaction.setPrice(0.0);
+                    transaction.setStatus("receive");
+                    transaction.setTime(Instant.now());
+                    transaction.setAmount(Math.abs(amountDifference));
+                    transactionRepository.save(transaction);
+                }
             } else {
                 throw new RuntimeException("Product Account not found for product with id: " + existingProduct.getId());
             }
